@@ -34,6 +34,12 @@ code{background:#21262d;padding:1px 5px;border-radius:3px;font:11px ui-monospace
   overflow-y:auto;font:11px/1.6 ui-monospace,monospace;color:#8b949e;white-space:pre-wrap}
 .ok{color:#3fb950}.warn{color:#d29922}.err{color:#f85149}
 a{color:#58a6ff;text-decoration:none}a:hover{text-decoration:underline}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:6px;max-height:260px;overflow-y:auto}
+.g{background:#0d1117;border:1px solid #21262d;border-radius:4px;padding:5px 8px;font-size:11px;
+  display:flex;justify-content:space-between;gap:6px;color:#8b949e}
+.g.have{border-color:#238636;color:#3fb950}
+.g b{font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.g i{font-style:normal;color:#484f58;flex-shrink:0}
 </style>
 </head>
 <body>
@@ -77,11 +83,16 @@ a{color:#58a6ff;text-decoration:none}a:hover{text-decoration:underline}
     </div>
     <div class="bar"><i id="bar"></i></div>
     <div class="st">
-      <div><div class="v" id="sGun">0</div><div class="k">枪械</div></div>
-      <div><div class="v" id="sRole">0</div><div class="k">角色</div></div>
+      <div><div class="v" id="sGun">0</div><div class="k">枪械 / 89</div></div>
+      <div><div class="v" id="sRole">0</div><div class="k">角色 / 7</div></div>
       <div><div class="v" id="sOk">0</div><div class="k">成功</div></div>
       <div><div class="v" id="sFail">0</div><div class="k">失败</div></div>
     </div>
+  </div>
+
+  <div class="card">
+    <h2>枪械清单</h2>
+    <div id="gunList" class="grid"></div>
   </div>
 
   <div class="card">
@@ -98,6 +109,16 @@ var cred = null;
 var eng = null;
 
 function $(id){ return document.getElementById(id); }
+
+function boot() {
+  loadCatalog().then(function(cat){
+    CATALOG = cat;
+    renderGuns([]);
+    log('已加载清单：' + cat.guns.length + ' 把枪 / ' + cat.roles.length + ' 个角色');
+  }).catch(function(){
+    log('清单加载失败，请刷新页面', 'err');
+  });
+}
 
 function log(msg, cls) {
   var el = $('log');
@@ -151,6 +172,29 @@ function loadCatalog() {
   return fetch('../data/catalog.json').then(function(r){ return r.json(); });
 }
 
+function renderGuns(have) {
+  if (!CATALOG) return;
+  have = have || [];
+  var el = $('gunList');
+  el.innerHTML = '';
+  var frag = document.createDocumentFragment();
+  for (var i = 0; i < CATALOG.guns.length; i++) {
+    var id = CATALOG.guns[i];
+    var name = (CATALOG.gunNames && CATALOG.gunNames[String(id)]) || ('#' + id);
+    var ok = have.indexOf(id) >= 0;
+    var d = document.createElement('div');
+    d.className = 'g' + (ok ? ' have' : '');
+    var b = document.createElement('b');
+    b.textContent = name;
+    var s = document.createElement('i');
+    s.textContent = id;
+    d.appendChild(b);
+    d.appendChild(s);
+    frag.appendChild(d);
+  }
+  el.appendChild(frag);
+}
+
 function start() {
   if (!cred) { log('请先解析凭证', 'err'); return; }
   if (typeof Promise === 'undefined' || typeof fetch === 'undefined') {
@@ -191,6 +235,7 @@ function start() {
       log('当前存档：枪械 ' + st.guns.length + '/89，角色 ' + st.roles.length + '/7');
       $('sGun').textContent = st.guns.length;
       $('sRole').textContent = st.roles.length;
+      renderGuns(st.guns);
 
       var q = eng.plan(CATALOG, {
         guns: $('cGuns').checked,
@@ -209,6 +254,7 @@ function start() {
         $('sOk').textContent = st.ok;
         $('sFail').textContent = st.fail;
         $('bar').style.width = '100%';
+        renderGuns(st.guns);
       });
     });
 
@@ -218,6 +264,8 @@ function start() {
     $('go').disabled = false;
   });
 }
+
+boot();
 </script>
 </body>
 </html>
