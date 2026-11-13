@@ -58,7 +58,10 @@ CLIENT_ID = 'a9a16636dbaeb917e2ffb16f0d52006e'
 GAME_ID = '100068063'
 REDIRECT = 'https://h.api.4399.com/intermodal/user/login?gameId=%s&gameUrl=' % GAME_ID
 AUTHORIZE = 'https://ptlogin.4399.com/oauth2/authorize.do'
-LOGIN_POST = 'https://ptlogin.4399.com/oauth2/loginAndAuthorize.do'
+LOGIN_FRAME = ('https://ptlogin.4399.com/ptlogin/loginFrame.do'
+               '?postLoginHandler=&redirectUrl=&css=&appId=&gameId=' + GAME_ID +
+               '&loginFrom=uframe&layout=vertical&displayMode=&externalLogin=')
+LOGIN_POST = 'https://ptlogin.4399.com/ptlogin/login.do?v=1'
 GRANT2 = 'https://h.api.4399.com/intermodal/user/grant2'
 GAME_PAGE = 'https://h5game.haowan823.cn/newqz/index_hao.html'
 
@@ -106,7 +109,9 @@ def _session():
 
 
 def _extract_form(html):
-    i = html.find('loginAndAuthorize.do')
+    i = html.find('id="login_form"')
+    if i < 0:
+        i = html.find('login.do?v=1')
     if i < 0:
         return None
     start = html.rfind('<form', 0, i)
@@ -117,17 +122,22 @@ def _extract_form(html):
         a = m.group(1)
         n = re.search(r'name=["\']([^"\']+)["\']', a)
         v = re.search(r'value=["\']([^"\']*)["\']', a)
-        if n:
-            fields.append((n.group(1), v.group(1) if v else ''))
+        if not n:
+            continue
+        if n.group(1) in ('username', 'autoLogin'):
+            continue
+        fields.append((n.group(1), v.group(1) if v else ''))
     return fields
 
 
 def _err_of(html):
-    m = re.search(r'id="login_err_msg"[^>]*>(.*?)</p>', html, re.S)
-    if m:
-        t = re.sub(r'<[^>]+>', '', m.group(1)).strip()
-        if t:
-            return t
+    for pat in (r'id="login_err_msg"[^>]*>(.*?)</p>',
+                r'id="Msg"[^>]*>(.*?)</div>'):
+        m = re.search(pat, html, re.S)
+        if m:
+            t = re.sub(r'<[^>]+>', '', m.group(1)).strip()
+            if t:
+                return t
     m = re.search(r'errorCallback\([\'"]([^\'"]*)', html)
     if m and m.group(1) not in ('', 'null'):
         return m.group(1)
@@ -147,20 +157,14 @@ def login(username, password, verbose=True, timeout=20):
             print(*a)
 
     s = _session()
-    params = {
-        'client_id': CLIENT_ID,
-        'redirect_uri': REDIRECT,
-        'response_type': 'TOKEN',
-        'show_ext_login': 'true',
-        'auth_action': 'ORILOGIN',
-    }
+
     p('[1] 获取登录表单')
-    r = s.get(AUTHORIZE, params=params, timeout=timeout,
+    r = s.get(LOGIN_FRAME, timeout=timeout,
               headers={'Referer': 'https://www.4399.com/'})
     p('    HTTP', r.status_code, 'len', len(r.text))
     fields = _extract_form(r.text)
     if not fields:
-        return None, None, '登录表单结构变化，找不到 loginAndAuthorize.do'
+        return None, None, '登录表单结构变化，未找到 login_form'
     p('    表单字段', len(fields), '个')
 
     data = {}
@@ -171,17 +175,17 @@ def login(username, password, verbose=True, timeout=20):
 
     p('[2] 提交账号密码')
     r2 = s.post(LOGIN_POST, data=data, timeout=timeout,
-                allow_redirects=False, headers={
-                    'Referer': AUTHORIZE,
+                allow_redirects=True, headers={
+                    'Referer': LOGIN_FRAME,
                     'Origin': 'https://ptlogin.4399.com',
                     'Content-Type': 'application/x-www-form-urlencoded',
                 })
     p('    HTTP', r2.status_code, 'cookies:', list(s.cookies.keys()))
-    if r2.status_code == 401 or r2.status_code == 200:
-        e = _err_of(r2.text)
-        if e:
-            return None, None, e
-    loc = r2.headers.get('Location', '')
+    e = _err_of(r2.text)
+    if e:
+        return None, None, e
+    if not any(k in s.cookies for k in ('Puser', 'Pauth', 'Sauth', 'Uauth')):
+        return None, None, '登录未建立会话（服务器未下发身份 Cookie）'
 
     p('[3] 换取游戏凭证')
     r3 = s.post(GRANT2, data={'gameId': GAME_ID}, timeout=timeout, headers={
