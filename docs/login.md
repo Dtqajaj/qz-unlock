@@ -24,17 +24,32 @@
 ### 步骤 1：拿登录表单
 
 ```
-GET https://ptlogin.4399.com/oauth2/authorize.do
-    ?client_id=a9a16636dbaeb917e2ffb16f0d52006e
-    &redirect_uri=https://h.api.4399.com/intermodal/user/login?gameId=100068063&gameUrl=
-    &response_type=TOKEN
-    &show_ext_login=true
-    &auth_action=ORILOGIN          ← 关键，不带这个拿到的是短信登录页
+GET https://ptlogin.4399.com/ptlogin/loginFrame.do
+    ?postLoginHandler=&redirectUrl=&css=&appId=
+    &gameId=100068063&loginFrom=uframe&layout=vertical
+    &displayMode=&externalLogin=
+   Referer: https://www.4399.com/
 ```
 
-返回 HTML，里面 `<form id="authorizeForm" action="/oauth2/loginAndAuthorize.do">`。
+返回真实账号密码表单：
 
-**必须提取表单里的全部隐藏域**（30 个），少一个就报 `Parameter absence: xxx`。
+```html
+<form id="login_form" action="/ptlogin/login.do?v=1"
+      onsubmit="return check_login(username,'j-password',null,'Msg')">
+  <input type="hidden" name="sec" value="1" id="j-sec"/>
+  <input type="hidden" name="password" value="" id="j-psd"/>
+  <input type="password" id="j-password"/>
+</form>
+```
+
+**必须提取表单里的 22 个隐藏域。**
+注意排除 `username` 和 `autoLogin` —— 它们是空值输入框，带上会干扰登录判定。
+
+> ⚠️ **踩过的坑**：`oauth2/authorize.do` + `auth_action=ORILOGIN` 那条路能出表单，
+> 但它是「OAuth 授权」流程，不是普通登录。而且它的 `redirect_uri` 指向
+> `h.api.4399.com/intermodal/user/login`，这个接口**已经废弃**，
+> 无论传什么 `gameUrl` 都返回 `gameUrl_error (10007)`。
+> 正确入口是上面的 `loginFrame.do`。
 
 ### 步骤 2：提交账号密码
 
@@ -142,6 +157,40 @@ def aes_encrypt(plain, passphrase='lzYW5qaXVqa'):
 | AES key 直接当字符串 | `Incorrect AES key length (11 bytes)` | EVP_BytesToKey 派生 |
 | `password1` 没 name | 表单里看不到提交值 | 真正的字段是 `password` |
 | 账号填 userId | 走成注册流程 | 用账号名（如 7859），不是 803056 |
+
+---
+
+## 四点五、`game_url_error (10007)` 是什么
+
+```json
+{"code":10007,"message":"game_url_error","data":[],"extra":{...}}
+```
+
+这个错误来自 **`h.api.4399.com/intermodal/user/login`** —— 一个**已经废弃**的接口。
+
+实测：
+
+```
+GET /intermodal/user/login?gameId=100068063&gameUrl=<游戏页>      → 10007 game_url_error
+GET /intermodal/user/login?gameId=100068063&gameUrl=<编码后>      → 10007 game_url_error
+GET /intermodal/user/login?gameId=100068063&gameUrl=              → 10007 game_url_error
+```
+
+**怎么传都报错，说明接口本身不再接收这个用途。** 它原本是 OAuth 登录后回跳用的，
+现在 4399 改成了别的流程。
+
+正确的做法是不要经过它：
+
+```
+loginFrame.do 登录 → 拿到身份 Cookie
+                  → POST h.api.4399.com/intermodal/user/grant2 {gameId}
+                  → {userId, userName, sign, time}
+```
+
+`grant2` 才是拿 sign 的接口，`intermodal/user/login` 只是历史遗留。
+
+> 这也是为什么「复制游戏页地址」的方式反而更稳：
+> 游戏自己会走完整授权链，地址栏里的 `sign` 一定是有效的。
 
 ---
 
