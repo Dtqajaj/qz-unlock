@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>吃鸡枪王战场 · 全解锁</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#0d1117;color:#c9d1d9;font:14px/1.6 -apple-system,"Segoe UI",sans-serif;padding:20px}
+.wrap{max-width:760px;margin:0 auto}
+h1{font-size:20px;font-weight:600;color:#e6edf3;margin-bottom:4px}
+.sub{color:#8b949e;font-size:13px;margin-bottom:20px}
+.card{background:#161b22;border:1px solid #21262d;border-radius:8px;padding:18px;margin-bottom:14px}
+.card h2{font-size:14px;font-weight:600;color:#e6edf3;margin-bottom:10px;display:flex;align-items:center;gap:8px}
+.num{background:#1f6feb;color:#fff;width:20px;height:20px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:12px}
+.btn{background:#238636;color:#fff;border:none;padding:10px 18px;border-radius:6px;font-size:14px;font-weight:500;cursor:pointer}
+.btn:hover{background:#2ea043}
+.btn:disabled{background:#21262d;color:#484f58;cursor:not-allowed}
+.btn.gray{background:#21262d;color:#c9d1d9}
+.btn.gray:hover{background:#30363d}
+textarea{width:100%;background:#0d1117;border:1px solid #30363d;border-radius:6px;color:#c9d1d9;
+  padding:10px;font:12px/1.5 ui-monospace,Consolas,monospace;resize:vertical;min-height:90px}
+textarea:focus{outline:none;border-color:#1f6feb}
+.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:10px}
+.hint{color:#8b949e;font-size:12px;margin-top:8px;line-height:1.7}
+code{background:#21262d;padding:1px 5px;border-radius:3px;font:11px ui-monospace,monospace;color:#79c0ff}
+.st{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:8px;margin-top:12px}
+.st div{background:#0d1117;border:1px solid #21262d;border-radius:6px;padding:10px;text-align:center}
+.st .v{font-size:20px;font-weight:600;color:#3fb950;font-variant-numeric:tabular-nums}
+.st .k{font-size:11px;color:#8b949e;margin-top:2px}
+.bar{height:6px;background:#21262d;border-radius:3px;overflow:hidden;margin-top:12px}
+.bar i{display:block;height:100%;background:#238636;width:0;transition:width .2s}
+#log{background:#0d1117;border:1px solid #21262d;border-radius:6px;padding:10px;height:180px;
+  overflow-y:auto;font:11px/1.6 ui-monospace,monospace;color:#8b949e;white-space:pre-wrap}
+.ok{color:#3fb950}.warn{color:#d29922}.err{color:#f85149}
+a{color:#58a6ff;text-decoration:none}a:hover{text-decoration:underline}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>吃鸡枪王战场 · 全解锁</h1>
+  <div class="sub">枪械 89 · 角色 7 · 备战栏位 6 · 广告商店 · 全部写入服务端存档</div>
+
+  <div class="card">
+    <h2><span class="num">1</span>获取登录凭证</h2>
+    <div class="hint">
+      4399 的登录签名 <code>sign</code> 由服务端签发，无法用账号密码替代。<br>
+      点下面按钮去游戏页，在地址栏能看到 <code>userId</code> / <code>sign</code> 就说明已登录。
+    </div>
+    <div class="row">
+      <button class="btn gray" onclick="openGame()">打开游戏页面</button>
+      <button class="btn gray" onclick="grabFromClipboard()">从剪贴板读取链接</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2><span class="num">2</span>粘贴游戏链接</h2>
+    <div class="hint">把地址栏里 <code>index_hao.html?userId=...&sign=...</code> 整条粘贴进来</div>
+    <textarea id="url" placeholder="https://h5game.haowan823.cn/newqz/index_hao.html?account=...&userId=...&userName=...&time=...&sign=..."></textarea>
+    <div class="row">
+      <button class="btn" onclick="parseUrl()">解析凭证</button>
+      <span id="credInfo" class="hint"></span>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2><span class="num">3</span>开始刷取</h2>
+    <div class="row">
+      <label><input type="checkbox" id="cGuns" checked> 枪械 89</label>
+      <label><input type="checkbox" id="cRoles" checked> 角色 7</label>
+      <label><input type="checkbox" id="cSlots" checked> 备战栏位</label>
+      <label><input type="checkbox" id="cShop" checked> 广告商店</label>
+      <label><input type="checkbox" id="cZs"> 钻石商店</label>
+    </div>
+    <div class="row">
+      <button class="btn" id="go" onclick="start()" disabled>开始刷取</button>
+    </div>
+    <div class="bar"><i id="bar"></i></div>
+    <div class="st">
+      <div><div class="v" id="sGun">0</div><div class="k">枪械</div></div>
+      <div><div class="v" id="sRole">0</div><div class="k">角色</div></div>
+      <div><div class="v" id="sOk">0</div><div class="k">成功</div></div>
+      <div><div class="v" id="sFail">0</div><div class="k">失败</div></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>日志</h2>
+    <div id="log"></div>
+  </div>
+</div>
+
+<script src="../src/proto.js"></script>
+<script src="../src/engine.js"></script>
+<script>
+var CATALOG = null;
+var cred = null;
+var eng = null;
+
+function $(id){ return document.getElementById(id); }
+
+function log(msg, cls) {
+  var el = $('log');
+  var d = document.createElement('div');
+  if (cls) d.className = cls;
+  d.textContent = new Date().toLocaleTimeString() + '  ' + msg;
+  el.appendChild(d);
+  el.scrollTop = el.scrollHeight;
+  while (el.children.length > 400) el.removeChild(el.firstChild);
+}
+
+function openGame() {
+  window.open('https://h.api.4399.com/g.php?gameId=100068063', '_blank');
+  log('已打开，登录后从地址栏复制完整链接', 'warn');
+}
+
+function grabFromClipboard() {
+  if (!navigator.clipboard) { log('浏览器不支持，请手动粘贴', 'err'); return; }
+  navigator.clipboard.readText().then(function(t){
+    $('url').value = t;
+    parseUrl();
+  }).catch(function(){
+    log('读取失败，请手动粘贴', 'err');
+  });
+}
+
+function parseUrl() {
+  var v = $('url').value.trim();
+  if (!v) { log('请先粘贴链接', 'err'); return; }
+  var q = v.indexOf('?') >= 0 ? v.split('?')[1] : v;
+  var parts = q.split('&'), o = {};
+  for (var i = 0; i < parts.length; i++) {
+    if (!parts[i]) continue;
+    var kv = parts[i].split('=');
+    o[kv[0]] = decodeURIComponent(kv.slice(1).join('=') || '');
+  }
+  if (!o.userId || !o.sign || !o.userName || !o.time) {
+    log('链接缺少 userId / userName / time / sign，请确认是游戏页地址栏里的完整链接', 'err');
+    $('credInfo').textContent = '';
+    $('go').disabled = true;
+    return;
+  }
+  cred = o;
+  $('credInfo').innerHTML = '<span class="ok">✓</span> userId=' + o.userId +
+    ' 昵称=' + o.userName + ' 签发时间=' + new Date(Number(o.time) * 1000).toLocaleString();
+  $('go').disabled = false;
+  log('凭证解析成功', 'ok');
+}
+
+function loadCatalog() {
+  return fetch('../data/catalog.json').then(function(r){ return r.json(); });
+}
+
+function start() {
+  if (!cred) { log('请先解析凭证', 'err'); return; }
+  $('go').disabled = true;
+  log('开始连接服务器…');
+
+  QZEngine.fetchServer().then(function(srv){
+    log('服务器 ' + srv);
+    eng = new QZEngine.Engine({
+      server: srv,
+      onLog: function(m){ log(m); },
+      onProgress: function(i, total, tag){
+        var p = Math.round(i / total * 100);
+        $('bar').style.width = p + '%';
+        if (i % 10 === 0 || i === total) {
+          log('进度 ' + i + '/' + total + '  ' + tag);
+        }
+      },
+      onDone: function(st){
+        log('完成：枪械 ' + st.guns.length + ' 角色 ' + st.roles.length +
+            ' 成功 ' + st.ok + ' 失败 ' + st.fail,
+            st.fail === 0 ? 'ok' : 'warn');
+        $('go').disabled = false;
+      }
+    });
+
+    return eng.connect(cred).then(function(){
+      log('登录成功', 'ok');
+      return loadCatalog();
+    }).then(function(cat){
+      CATALOG = cat;
+      return eng.pull();
+    }).then(function(){
+      var st = eng.state;
+      log('当前存档：枪械 ' + st.guns.length + '/89，角色 ' + st.roles.length + '/7');
+      $('sGun').textContent = st.guns.length;
+      $('sRole').textContent = st.roles.length;
+
+      var q = eng.plan(CATALOG, {
+        guns: $('cGuns').checked,
+        roles: $('cRoles').checked,
+        slots: $('cSlots').checked,
+        shopAd: $('cShop').checked,
+        shopDiamond: $('cZs').checked
+      });
+      log('待处理 ' + q.length + ' 条（间隔 500ms，约 ' +
+          Math.ceil(q.length * 0.5 / 60) + ' 分钟）');
+      if (!q.length) { log('没有需要刷的内容', 'warn'); $('go').disabled = false; return; }
+
+      return eng.run(q).then(function(st){
+        $('sGun').textContent = st.guns.length;
+        $('sRole').textContent = st.roles.length;
+        $('sOk').textContent = st.ok;
+        $('sFail').textContent = st.fail;
+        $('bar').style.width = '100%';
+      });
+    });
+
+  }).catch(function(e){
+    log('失败：' + e.message, 'err');
+    log('常见原因：签名过期（重新进游戏页面拿新链接）、网络断开、频率限制', 'warn');
+    $('go').disabled = false;
+  });
+}
+</script>
+</body>
+</html>
