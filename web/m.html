@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>吃鸡枪王战场 · 全解锁</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{background:#0d1117;color:#c9d1d9;font:15px/1.65 -apple-system,"PingFang SC","Helvetica Neue",sans-serif;
+  padding:16px 14px 40px;max-width:520px;margin:0 auto}
+h1{font-size:19px;font-weight:600;color:#e6edf3;margin-bottom:2px}
+.sub{color:#8b949e;font-size:12px;margin-bottom:16px}
+.card{background:#161b22;border:1px solid #21262d;border-radius:12px;padding:16px;margin-bottom:12px}
+.card h2{font-size:15px;font-weight:600;color:#e6edf3;margin-bottom:10px;
+  display:flex;align-items:center;gap:8px}
+.num{background:#1f6feb;color:#fff;width:22px;height:22px;border-radius:50%;
+  display:inline-flex;align-items:center;justify-content:center;font-size:12px;flex-shrink:0}
+.btn{display:block;width:100%;background:#238636;color:#fff;border:none;
+  padding:15px;border-radius:10px;font-size:16px;font-weight:600;
+  cursor:pointer;margin-bottom:10px;text-align:center;text-decoration:none}
+.btn:active{background:#2ea043;transform:scale(.98)}
+.btn.gray{background:#21262d;color:#c9d1d9}
+.btn.gray:active{background:#30363d}
+.btn:disabled{background:#21262d;color:#484f58}
+textarea{width:100%;background:#0d1117;border:1px solid #30363d;border-radius:10px;
+  color:#c9d1d9;padding:12px;font-size:13px;min-height:88px;resize:vertical;
+  font-family:ui-monospace,monospace;line-height:1.5}
+textarea:focus{outline:none;border-color:#1f6feb}
+.hint{color:#8b949e;font-size:12px;line-height:1.8;margin-top:8px}
+code{background:#21262d;padding:2px 6px;border-radius:4px;font-size:11px;
+  color:#79c0ff;font-family:ui-monospace,monospace;word-break:break-all}
+.st{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}
+.st div{background:#0d1117;border:1px solid #21262d;border-radius:10px;padding:12px;text-align:center}
+.st .v{font-size:24px;font-weight:700;color:#3fb950;font-variant-numeric:tabular-nums}
+.st .k{font-size:11px;color:#8b949e;margin-top:2px}
+.bar{height:8px;background:#21262d;border-radius:4px;overflow:hidden;margin-top:12px}
+.bar i{display:block;height:100%;background:#238636;width:0;transition:width .3s}
+#log{background:#0d1117;border:1px solid #21262d;border-radius:10px;padding:12px;
+  height:170px;overflow-y:auto;font:11px/1.7 ui-monospace,monospace;
+  color:#8b949e;white-space:pre-wrap;-webkit-overflow-scrolling:touch}
+.ok{color:#3fb950}.warn{color:#d29922}.err{color:#f85149}
+.steps{counter-reset:s;margin-left:0;list-style:none}
+.steps li{position:relative;padding-left:26px;margin-bottom:9px;font-size:13px;color:#c9d1d9}
+.steps li:before{counter-increment:s;content:counter(s);position:absolute;left:0;top:2px;
+  width:18px;height:18px;background:#1f6feb;color:#fff;border-radius:50%;
+  font-size:11px;display:flex;align-items:center;justify-content:center}
+</style>
+</head>
+<body>
+
+<h1>吃鸡枪王战场 · 全解锁</h1>
+<div class="sub">枪械 89 · 角色 7 · 备战栏位 6 · 广告商店</div>
+
+<div class="card">
+  <h2><span class="num">1</span>打开游戏登录</h2>
+  <a class="btn" href="https://h.api.4399.com/g.php?gameId=100068063" target="_blank" id="gameBtn">打开游戏页</a>
+  <div class="hint">
+    点上面按钮，在游戏页里登录 4399。<br>
+    登录成功后，游戏会自动跳到<b>可以玩</b>的界面。
+  </div>
+</div>
+
+<div class="card">
+  <h2><span class="num">2</span>把地址复制回来</h2>
+  <div class="hint" style="margin-top:0;margin-bottom:10px">
+    在游戏页点浏览器的<b>地址栏</b>，长按 → <b>全选 → 复制</b>。<br>
+    地址里要有 <code>userId=</code> 和 <code>sign=</code>。
+  </div>
+  <textarea id="url" placeholder="在这里长按 → 粘贴"></textarea>
+  <button class="btn" style="margin-top:10px" onclick="doParse()">解析</button>
+  <div class="hint" id="credTip"></div>
+</div>
+
+<div class="card">
+  <h2><span class="num">3</span>开始刷</h2>
+  <div style="display:flex;flex-wrap:wrap;gap:12px;font-size:13px;margin-bottom:12px">
+    <label><input type="checkbox" id="cGuns" checked> 枪械</label>
+    <label><input type="checkbox" id="cRoles" checked> 角色</label>
+    <label><input type="checkbox" id="cSlots" checked> 栏位</label>
+    <label><input type="checkbox" id="cShop" checked> 商店</label>
+  </div>
+  <button class="btn" id="go" onclick="start()" disabled>开始刷取</button>
+  <div class="bar"><i id="bar"></i></div>
+  <div class="st">
+    <div><div class="v" id="sGun">0</div><div class="k">枪械 / 89</div></div>
+    <div><div class="v" id="sRole">0</div><div class="k">角色 / 7</div></div>
+    <div><div class="v" id="sOk">0</div><div class="k">成功</div></div>
+    <div><div class="v" id="sFail">0</div><div class="k">失败</div></div>
+  </div>
+</div>
+
+<div class="card">
+  <h2>日志</h2>
+  <div id="log"></div>
+</div>
+
+<script src="../src/proto.js"></script>
+<script>
+var CATALOG=null, cred=null, ws=null;
+var st={guns:[],roles:[],adShop:[],ok:0,fail:0};
+var q=[], sent=0;
+
+function $(id){return document.getElementById(id)}
+function log(m,c){var el=$('log'),d=document.createElement('div');
+  if(c)d.className=c;d.textContent=m;el.appendChild(d);el.scrollTop=el.scrollHeight;
+  while(el.children.length>300)el.removeChild(el.firstChild)}
+
+function doParse(){
+  var v=$('url').value.trim();
+  if(!v){log('请先粘贴地址','err');return}
+  var qs = v.indexOf('?')>=0 ? v.split('?')[1] : v;
+  var parts=qs.split('&'), o={};
+  for(var i=0;i<parts.length;i++){
+    if(!parts[i])continue;
+    var kv=parts[i].split('=');
+    o[kv[0]]=decodeURIComponent(kv.slice(1).join('=')||'');
+  }
+  if(!o.userId||!o.sign||!o.userName||!o.time){
+    $('credTip').innerHTML='<span class="err">✗ 缺少 userId / sign</span><br>'+
+      '<span style="color:#8b949e;font-size:11px">确认是从游戏页地址栏复制的完整地址</span>';
+    $('go').disabled=true;
+    return;
+  }
+  cred=o;
+  $('go').disabled=false;
+  $('credTip').innerHTML='<span class="ok">✓ 已识别</span> userId='+o.userId+
+    ' 昵称='+o.userName;
+  log('凭证 OK','ok');
+}
+
+function start(){
+  if(!cred){log('先解析地址','err');return}
+  $('go').disabled=true;
+  log('连接服务器…');
+  try{ ws=new WebSocket('wss://csdj23.haowan823.cn:7385/'); }
+  catch(e){ log('连接失败 '+e.message,'err'); $('go').disabled=false; return; }
+  ws.binaryType='arraybuffer';
+  ws.onopen=function(){ ws.send(QZProto.frame(10000,QZProto.loginBody(cred)).buffer); };
+  ws.onerror=function(){ log('网络错误，检查是否联网','err'); $('go').disabled=false; };
+  ws.onclose=function(){ if(sent<q.length) log('连接断开','warn'); };
+  ws.onmessage=onMsg;
+}
+
+function onMsg(ev){
+  var u8=new Uint8Array(ev.data);
+  var mid=(u8[0]<<8)|u8[1], body=u8.subarray(2);
+  if(mid===10001){
+    var f=QZProto.PF(body),code=0;
+    for(var i=0;i<f.length;i++) if(f[i].n===1) code=Number(f[i].v);
+    if(code!==1){
+      log('登录失败 code='+code+(code===1009?'（签名过期，重新进游戏拿新地址）':''),'err');
+      $('go').disabled=false; return;
+    }
+    log('登录成功','ok');
+    [22001,22003,22005,22007,22050].forEach(function(m,k){
+      setTimeout(function(){ ws.send(QZProto.frame(m).buffer); },k*700);
+    });
+    setTimeout(build,4400);
+    return;
+  }
+  if(mid===22006){
+    st.guns=[];
+    QZProto.PF(body).forEach(function(x){
+      if(x.n!==1||x.w!==2)return;
+      QZProto.PF(x.v).forEach(function(g){ if(g.n===1) st.guns.push(Number(g.v)); });
+    });
+    $('sGun').textContent=st.guns.length;
+    log('枪械 '+st.guns.length+'/89');
+  }
+  if(mid===22004){
+    st.roles=[];
+    QZProto.PF(body).forEach(function(x){
+      if(x.n!==1)return;
+      QZProto.PF(x.v).forEach(function(g){ if(g.n===1) st.roles.push(Number(g.v)); });
+    });
+    $('sRole').textContent=st.roles.length;
+    log('角色 '+st.roles.length+'/7');
+  }
+  if(mid===22051){
+    st.adShop=[];
+    QZProto.PF(body).forEach(function(x){
+      if(x.n!==1||x.w!==2)return;
+      var o={id:0,fxt:0,tlr:0};
+      QZProto.PF(x.v).forEach(function(g){
+        if(g.n===1)o.id=Number(g.v);
+        if(g.n===5)o.fxt=Number(g.v);
+        if(g.n===6)o.tlr=Number(g.v);
+      });
+      if(o.id)st.adShop.push(o);
+    });
+  }
+  if(mid===22065||mid===22067||mid===22016||mid===22053||mid===22055){
+    var c=0,ff=QZProto.PF(body);
+    for(var z=0;z<ff.length;z++) if(ff[z].n===1) c=Number(ff[z].v);
+    if(c===1)st.ok++;else st.fail++;
+    $('sOk').textContent=st.ok; $('sFail').textContent=st.fail;
+  }
+}
+
+function build(){
+  q=[]; var i;
+  if($('cGuns').checked) for(i=0;i<CATALOG.guns.length;i++){
+    var g=CATALOG.guns[i];
+    if(st.guns.indexOf(g)<0) q.push([22064,QZProto.FI(1,1).concat(QZProto.FI(2,g))]);
+  }
+  if($('cRoles').checked) for(i=0;i<CATALOG.roles.length;i++){
+    var r=CATALOG.roles[i];
+    if(st.roles.indexOf(r)<0) q.push([22066,QZProto.FI(1,1).concat(QZProto.FI(2,r))]);
+  }
+  if($('cSlots').checked) for(i=0;i<6;i++)
+    q.push([22015,QZProto.FI(1,i).concat(QZProto.FI(2,1))]);
+  if($('cShop').checked) for(i=0;i<st.adShop.length;i++){
+    var po=st.adShop[i];
+    if(po.fxt>0&&po.tlr>=po.fxt)continue;
+    q.push([22052,QZProto.FI(1,po.id)]);
+    q.push([22054,QZProto.FI(1,po.id)]);
+  }
+  log('待写 '+q.length+' 条，约 '+Math.ceil(q.length*0.5/60)+' 分钟');
+  sent=0; step();
+}
+
+function step(){
+  if(sent>=q.length){
+    log('完成！枪械 '+st.guns.length+'/89 角色 '+st.roles.length+'/7 成功 '+st.ok+' 失败 '+st.fail,'ok');
+    $('bar').style.width='100%';
+    $('go').disabled=false;
+    setTimeout(function(){
+      st.guns=[];st.roles=[];
+      [22001,22003,22005,22007].forEach(function(m,k){
+        setTimeout(function(){ws.send(QZProto.frame(m).buffer)},k*700);
+      });
+    },1500);
+    return;
+  }
+  var t=q[sent++];
+  ws.send(QZProto.frame(t[0],t[1]).buffer);
+  $('bar').style.width=Math.round(sent/q.length*100)+'%';
+  if(sent%20===0) log('进度 '+sent+'/'+q.length);
+  setTimeout(step,(sent%40===0)?1500:500);
+}
+
+function boot(){
+  fetch('../data/catalog.json').then(function(r){return r.json()}).then(function(c){
+    CATALOG=c;
+    log('清单已加载：'+c.guns.length+' 枪 / '+c.roles.length+' 角色');
+  }).catch(function(){log('清单加载失败','err')});
+
+  // ?u= 直接带入
+  var m=location.search.match(/[?&]u=([^&]+)/);
+  if(m){
+    try{
+      $('url').value=decodeURIComponent(m[1]);
+      log('已从链接带入地址');
+      doParse();
+    }catch(e){}
+  }
+}
+boot();
+</script>
+</body>
+</html>
