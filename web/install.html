@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>安装油猴脚本</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{background:#0d1117;color:#c9d1d9;font:15px/1.7 -apple-system,"PingFang SC",sans-serif;
+  padding:18px 14px 50px;max-width:560px;margin:0 auto}
+h1{font-size:19px;color:#e6edf3;margin-bottom:4px}
+.sub{color:#8b949e;font-size:12px;margin-bottom:16px}
+.card{background:#161b22;border:1px solid #21262d;border-radius:12px;padding:16px;margin-bottom:12px}
+.card.hi{border-color:#238636}
+h2{font-size:15px;color:#e6edf3;margin-bottom:10px;display:flex;align-items:center;gap:8px}
+.n{background:#1f6feb;color:#fff;width:22px;height:22px;border-radius:50%;
+  display:inline-flex;align-items:center;justify-content:center;font-size:12px;flex-shrink:0}
+.btn{display:block;width:100%;background:#238636;color:#fff;border:none;
+  padding:15px;border-radius:10px;font-size:16px;font-weight:600;
+  text-align:center;text-decoration:none;margin-bottom:10px;cursor:pointer}
+.btn:active{background:#2ea043;transform:scale(.98)}
+.btn.gray{background:#21262d;color:#c9d1d9}
+.btn.gray:active{background:#30363d}
+.hint{color:#8b949e;font-size:12px;line-height:1.9}
+code{background:#21262d;padding:2px 6px;border-radius:4px;font-size:11px;
+  color:#79c0ff;font-family:ui-monospace,monospace;word-break:break-all}
+.warn{color:#d29922}.ok{color:#3fb950}.err{color:#f85149}
+.steps{list-style:none}
+.steps li{margin-bottom:10px;font-size:13px}
+</style>
+</head>
+<body>
+
+<h1>安装油猴脚本</h1>
+<div class="sub">装一次，之后进游戏自动刷，不用管地址栏</div>
+
+<div class="card hi">
+  <h2><span class="n">1</span>装 Tampermonkey</h2>
+  <a class="btn" href="https://www.tampermonkey.net/" target="_blank">打开 Tampermonkey 官网</a>
+  <div class="hint">
+    <b>安卓</b>：装 <b>Kiwi Browser</b>，在里面装 Tampermonkey 扩展<br>
+    <b>iPhone</b>：App Store 下 <b>Userscripts</b>（Safari 扩展）<br>
+    <b>电脑</b>：Chrome / Edge 应用商店直接装
+  </div>
+</div>
+
+<div class="card">
+  <h2><span class="n">2</span>装脚本</h2>
+  <a class="btn" id="i1" href="#" onclick="return doInstall(1)">
+    ★ 点这里安装（推荐）</a>
+  <a class="btn gray" id="i2" href="#" onclick="return doInstall(2)">
+    备用方式（GitHub 原始地址）</a>
+  <div id="tip" class="hint"></div>
+</div>
+
+<div class="card">
+  <h2><span class="n">3</span>上面都不行就用这个</h2>
+  <div class="hint" style="margin-bottom:10px">
+    复制脚本全文 → 在油猴里点「+」新建脚本 → 全选删掉 → 粘贴 → 保存（Ctrl+S）。
+  </div>
+  <button class="btn gray" onclick="copyScript()">复制脚本源码</button>
+  <div id="tip2" class="hint"></div>
+</div>
+
+<div class="card">
+  <h2><span class="n">4</span>装好之后</h2>
+  <div class="hint" style="margin-bottom:12px">
+    打开游戏登录，脚本自动开始刷，约 1 分钟。<br>
+    刷完重进游戏，89 把枪都在。
+  </div>
+  <a class="btn" style="margin-bottom:0"
+     href="https://h.api.4399.com/g.php?gameId=100068063" target="_blank">打开游戏</a>
+</div>
+
+<script>
+// 两条安装地址，油猴认 .user.js 后缀
+var URLS = {
+  1: '../dist/qz-unlock.user.js',
+  2: 'https://cdn.jsdelivr.net/gh/Dtqajaj/qz-unlock@main/dist/qz-unlock.user.js'
+};
+
+function absolute(u) { return new URL(u, location.href).href; }
+
+function doInstall(n) {
+  var tip = document.getElementById('tip');
+  var url = absolute(URLS[n]);
+  tip.innerHTML = '正在打开…';
+  window.location.href = url;
+  setTimeout(function () {
+    tip.innerHTML =
+      '<span class="warn">如果页面显示一堆代码而不是安装界面</span>，' +
+      '说明浏览器没装油猴，或油猴没接管这个链接。<br>' +
+      '改用下面的「复制脚本源码」。';
+  }, 2500);
+  return false;
+}
+
+function copyScript() {
+  var tip = document.getElementById('tip2');
+  var url = absolute(URLS[1]);
+  tip.textContent = '读取中…';
+  fetch(url).then(function (r) { return r.text(); }).then(function (code) {
+    if (code.indexOf('// ==UserScript==') !== 0) throw new Error('内容异常');
+    return navigator.clipboard.writeText(code).then(function () {
+      tip.innerHTML = '<span class="ok">✓ 已复制 ' + code.length + ' 字符</span><br>' +
+        '打开油猴 → 点「+」→ 全选删掉 → 粘贴 → 保存。';
+      try { localStorage.setItem('qz_script_cache', code); } catch (e) {}
+    });
+  }).catch(function (e) {
+    // 剪贴板失败就用 textarea 兜底
+    try {
+      var cached = localStorage.getItem('qz_script_cache');
+      if (cached && navigator.clipboard) {
+        navigator.clipboard.writeText(cached);
+        tip.innerHTML = '<span class="ok">✓ 已从缓存复制</span>';
+        return;
+      }
+    } catch (e2) {}
+    tip.innerHTML = '<span class="err">复制失败：' + e.message + '</span>';
+  });
+}
+
+// 预加载脚本到缓存，剪贴板失败时能兜底
+window.addEventListener('load', function () {
+  fetch(absolute(URLS[1])).then(function (r) { return r.text(); })
+    .then(function (c) { try { localStorage.setItem('qz_script_cache', c); } catch (e) {} })
+    .catch(function () {});
+});
+</script>
+</body>
+</html>
