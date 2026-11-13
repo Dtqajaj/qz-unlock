@@ -11,72 +11,87 @@ body{background:#0d1117;color:#c9d1d9;font:14px/1.6 -apple-system,"Segoe UI",san
 h1{font-size:20px;font-weight:600;color:#e6edf3;margin-bottom:4px}
 .sub{color:#8b949e;font-size:13px;margin-bottom:20px}
 .card{background:#161b22;border:1px solid #21262d;border-radius:8px;padding:18px;margin-bottom:14px}
-.card h2{font-size:14px;font-weight:600;color:#e6edf3;margin-bottom:10px;display:flex;align-items:center;gap:8px}
-.num{background:#1f6feb;color:#fff;width:20px;height:20px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:12px}
-.btn{background:#238636;color:#fff;border:none;padding:10px 18px;border-radius:6px;font-size:14px;font-weight:500;cursor:pointer}
+.card h2{font-size:14px;font-weight:600;color:#e6edf3;margin-bottom:12px;display:flex;align-items:center;gap:8px}
+.num{background:#1f6feb;color:#fff;width:20px;height:20px;border-radius:50%;display:inline-flex;
+  align-items:center;justify-content:center;font-size:12px;flex-shrink:0}
+.btn{background:#238636;color:#fff;border:none;padding:10px 20px;border-radius:6px;font-size:14px;
+  font-weight:500;cursor:pointer;transition:.15s}
 .btn:hover{background:#2ea043}
 .btn:disabled{background:#21262d;color:#484f58;cursor:not-allowed}
 .btn.gray{background:#21262d;color:#c9d1d9}
 .btn.gray:hover{background:#30363d}
-textarea{width:100%;background:#0d1117;border:1px solid #30363d;border-radius:6px;color:#c9d1d9;
-  padding:10px;font:12px/1.5 ui-monospace,Consolas,monospace;resize:vertical;min-height:90px}
-textarea:focus{outline:none;border-color:#1f6feb}
+input[type=text],input[type=password]{width:100%;background:#0d1117;border:1px solid #30363d;
+  border-radius:6px;color:#c9d1d9;padding:10px 12px;font-size:14px;outline:none}
+input[type=text]:focus,input[type=password]:focus{border-color:#1f6feb}
+.field{margin-bottom:10px}
+.field label{display:block;font-size:12px;color:#8b949e;margin-bottom:5px}
 .row{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:10px}
 .hint{color:#8b949e;font-size:12px;margin-top:8px;line-height:1.7}
 code{background:#21262d;padding:1px 5px;border-radius:3px;font:11px ui-monospace,monospace;color:#79c0ff}
-.st{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:8px;margin-top:12px}
+.st{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:12px}
 .st div{background:#0d1117;border:1px solid #21262d;border-radius:6px;padding:10px;text-align:center}
 .st .v{font-size:20px;font-weight:600;color:#3fb950;font-variant-numeric:tabular-nums}
 .st .k{font-size:11px;color:#8b949e;margin-top:2px}
 .bar{height:6px;background:#21262d;border-radius:3px;overflow:hidden;margin-top:12px}
-.bar i{display:block;height:100%;background:#238636;width:0;transition:width .2s}
-#log{background:#0d1117;border:1px solid #21262d;border-radius:6px;padding:10px;height:180px;
+.bar i{display:block;height:100%;background:#238636;width:0;transition:width .3s}
+#log{background:#0d1117;border:1px solid #21262d;border-radius:6px;padding:10px;height:200px;
   overflow-y:auto;font:11px/1.6 ui-monospace,monospace;color:#8b949e;white-space:pre-wrap}
 .ok{color:#3fb950}.warn{color:#d29922}.err{color:#f85149}
 a{color:#58a6ff;text-decoration:none}a:hover{text-decoration:underline}
-.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:6px;max-height:260px;overflow-y:auto}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:6px;
+  max-height:280px;overflow-y:auto;margin-top:4px}
 .g{background:#0d1117;border:1px solid #21262d;border-radius:4px;padding:5px 8px;font-size:11px;
   display:flex;justify-content:space-between;gap:6px;color:#8b949e}
 .g.have{border-color:#238636;color:#3fb950}
 .g b{font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .g i{font-style:normal;color:#484f58;flex-shrink:0}
+.badge{font-size:11px;padding:2px 8px;border-radius:10px;background:#21262d;color:#8b949e}
+.badge.on{background:#1f6feb22;color:#58a6ff;border:1px solid #1f6feb55}
+#modeTip{font-size:12px;color:#d29922;margin-top:8px;display:none}
 </style>
 </head>
 <body>
 <div class="wrap">
   <h1>吃鸡枪王战场 · 全解锁</h1>
-  <div class="sub">枪械 89 · 角色 7 · 备战栏位 6 · 广告商店 · 全部写入服务端存档</div>
+  <div class="sub">枪械 89 · 角色 7 · 备战栏位 6 · 广告商店</div>
 
   <div class="card">
-    <h2><span class="num">1</span>获取登录凭证</h2>
-    <div class="hint">
-      4399 的登录签名 <code>sign</code> 由服务端签发，无法用账号密码替代。<br>
-      点下面按钮去游戏页，在地址栏能看到 <code>userId</code> / <code>sign</code> 就说明已登录。
+    <h2><span class="num">1</span>登录 4399 <span id="modeBadge" class="badge">检测中</span></h2>
+
+    <div id="loginForm">
+      <div class="field">
+        <label>4399 账号</label>
+        <input type="text" id="acc" placeholder="账号或手机号" autocomplete="username">
+      </div>
+      <div class="field">
+        <label>密码</label>
+        <input type="password" id="pwd" placeholder="密码" autocomplete="current-password">
+      </div>
+      <div class="row">
+        <button class="btn" id="btnLogin" onclick="doLogin()">登录</button>
+      </div>
+      <div id="modeTip"></div>
     </div>
-    <div class="row">
-      <button class="btn gray" onclick="openGame()">打开游戏页面</button>
-      <button class="btn gray" onclick="grabFromClipboard()">从剪贴板读取链接</button>
+
+    <div id="urlMode" style="display:none">
+      <div class="hint">粘贴游戏页地址栏里的整条链接（含 <code>userId</code> 和 <code>sign</code>）</div>
+      <div class="field" style="margin-top:8px">
+        <input type="text" id="url" placeholder="https://h5game.haowan823.cn/newqz/index_hao.html?userId=...&sign=...">
+      </div>
+      <div class="row">
+        <button class="btn" onclick="parseUrl()">解析</button>
+        <button class="btn gray" onclick="openGame()">打开游戏页</button>
+      </div>
     </div>
   </div>
 
   <div class="card">
-    <h2><span class="num">2</span>粘贴游戏链接</h2>
-    <div class="hint">把地址栏里 <code>index_hao.html?userId=...&sign=...</code> 整条粘贴进来</div>
-    <textarea id="url" placeholder="https://h5game.haowan823.cn/newqz/index_hao.html?account=...&userId=...&userName=...&time=...&sign=..."></textarea>
-    <div class="row">
-      <button class="btn" onclick="parseUrl()">解析凭证</button>
-      <span id="credInfo" class="hint"></span>
-    </div>
-  </div>
-
-  <div class="card">
-    <h2><span class="num">3</span>开始刷取</h2>
-    <div class="row">
+    <h2><span class="num">2</span>开始刷取</h2>
+    <div class="row" style="margin-top:0">
       <label><input type="checkbox" id="cGuns" checked> 枪械 89</label>
       <label><input type="checkbox" id="cRoles" checked> 角色 7</label>
       <label><input type="checkbox" id="cSlots" checked> 备战栏位</label>
       <label><input type="checkbox" id="cShop" checked> 广告商店</label>
-      <label><input type="checkbox" id="cZs"> 钻石商店</label>
     </div>
     <div class="row">
       <button class="btn" id="go" onclick="start()" disabled>开始刷取</button>
@@ -102,23 +117,10 @@ a{color:#58a6ff;text-decoration:none}a:hover{text-decoration:underline}
 </div>
 
 <script src="../src/proto.js"></script>
-<script src="../src/engine.js"></script>
 <script>
-var CATALOG = null;
-var cred = null;
-var eng = null;
+var CATALOG = null, cred = null, pollTimer = null, LOCAL = false;
 
 function $(id){ return document.getElementById(id); }
-
-function boot() {
-  loadCatalog().then(function(cat){
-    CATALOG = cat;
-    renderGuns([]);
-    log('已加载清单：' + cat.guns.length + ' 把枪 / ' + cat.roles.length + ' 个角色');
-  }).catch(function(){
-    log('清单加载失败，请刷新页面', 'err');
-  });
-}
 
 function log(msg, cls) {
   var el = $('log');
@@ -130,42 +132,30 @@ function log(msg, cls) {
   while (el.children.length > 400) el.removeChild(el.firstChild);
 }
 
-function openGame() {
-  window.open('https://h.api.4399.com/g.php?gameId=100068063', '_blank');
-  log('已打开，登录后从地址栏复制完整链接', 'warn');
+function setMode(local) {
+  LOCAL = local;
+  var b = $('modeBadge');
+  if (local) {
+    b.textContent = '本地服务';
+    b.className = 'badge on';
+    $('loginForm').style.display = '';
+    $('urlMode').style.display = 'none';
+  } else {
+    b.textContent = '静态模式';
+    b.className = 'badge';
+    $('loginForm').style.display = 'none';
+    $('urlMode').style.display = '';
+    $('modeTip').style.display = 'block';
+    $('modeTip').textContent =
+      '当前是纯静态页面，浏览器无法直接登录 4399（跨域）。运行 tools/server.py 后打开 http://127.0.0.1:8899/web/ 即可用账号密码登录。';
+  }
 }
 
-function grabFromClipboard() {
-  if (!navigator.clipboard) { log('浏览器不支持，请手动粘贴', 'err'); return; }
-  navigator.clipboard.readText().then(function(t){
-    $('url').value = t;
-    parseUrl();
-  }).catch(function(){
-    log('读取失败，请手动粘贴', 'err');
-  });
-}
-
-function parseUrl() {
-  var v = $('url').value.trim();
-  if (!v) { log('请先粘贴链接', 'err'); return; }
-  var q = v.indexOf('?') >= 0 ? v.split('?')[1] : v;
-  var parts = q.split('&'), o = {};
-  for (var i = 0; i < parts.length; i++) {
-    if (!parts[i]) continue;
-    var kv = parts[i].split('=');
-    o[kv[0]] = decodeURIComponent(kv.slice(1).join('=') || '');
-  }
-  if (!o.userId || !o.sign || !o.userName || !o.time) {
-    log('链接缺少 userId / userName / time / sign，请确认是游戏页地址栏里的完整链接', 'err');
-    $('credInfo').textContent = '';
-    $('go').disabled = true;
-    return;
-  }
-  cred = o;
-  $('credInfo').innerHTML = '<span class="ok">✓</span> userId=' + o.userId +
-    ' 昵称=' + o.userName + ' 签发时间=' + new Date(Number(o.time) * 1000).toLocaleString();
-  $('go').disabled = false;
-  log('凭证解析成功', 'ok');
+function detect() {
+  return fetch('/api/status', {method:'GET'})
+    .then(function(r){ if (!r.ok) throw 0; return r.json(); })
+    .then(function(){ setMode(true); })
+    .catch(function(){ setMode(false); });
 }
 
 function loadCatalog() {
@@ -188,81 +178,199 @@ function renderGuns(have) {
     b.textContent = name;
     var s = document.createElement('i');
     s.textContent = id;
-    d.appendChild(b);
-    d.appendChild(s);
+    d.appendChild(b); d.appendChild(s);
     frag.appendChild(d);
   }
   el.appendChild(frag);
 }
 
+function openGame() {
+  window.open('https://h.api.4399.com/g.php?gameId=100068063', '_blank');
+  log('已打开，登录后从地址栏复制完整链接', 'warn');
+}
+
+function parseUrl() {
+  var v = $('url').value.trim();
+  if (!v) { log('请先粘贴链接', 'err'); return; }
+  var q = v.indexOf('?') >= 0 ? v.split('?')[1] : v;
+  var parts = q.split('&'), o = {};
+  for (var i = 0; i < parts.length; i++) {
+    if (!parts[i]) continue;
+    var kv = parts[i].split('=');
+    o[kv[0]] = decodeURIComponent(kv.slice(1).join('=') || '');
+  }
+  if (!o.userId || !o.sign) { log('链接缺少 userId / sign', 'err'); return; }
+  cred = o;
+  $('go').disabled = false;
+  log('凭证 OK，userId=' + o.userId, 'ok');
+}
+
+function doLogin() {
+  var acc = $('acc').value.trim();
+  var pwd = $('pwd').value;
+  if (!acc || !pwd) { log('请输入账号和密码', 'err'); return; }
+  $('btnLogin').disabled = true;
+  $('btnLogin').textContent = '登录中…';
+  log('正在登录 4399…');
+  fetch('/api/login', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({username: acc, password: pwd})
+  }).then(function(r){ return r.json(); }).then(function(j){
+    $('btnLogin').disabled = false;
+    $('btnLogin').textContent = '登录';
+    if (!j.ok) { log('登录失败：' + j.error, 'err'); return; }
+    cred = j.cred;
+    $('go').disabled = false;
+    log('登录成功 userId=' + j.cred.userId + ' 昵称=' + j.cred.userName, 'ok');
+  }).catch(function(e){
+    $('btnLogin').disabled = false;
+    $('btnLogin').textContent = '登录';
+    log('请求失败：' + e.message, 'err');
+  });
+}
+
 function start() {
-  if (!cred) { log('请先解析凭证', 'err'); return; }
-  if (typeof Promise === 'undefined' || typeof fetch === 'undefined') {
-    log('浏览器太旧，不支持 Promise/fetch，请用 Chrome/Edge 最新版', 'err');
+  if (!cred) { log('请先登录', 'err'); return; }
+  $('go').disabled = true;
+  log('开始刷取…');
+
+  if (LOCAL) {
+    fetch('/api/flush', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({
+        userId: cred.userId, userName: cred.userName,
+        time: cred.time, sign: cred.sign,
+        opts: {
+          guns: $('cGuns').checked, roles: $('cRoles').checked,
+          slots: $('cSlots').checked, shop: $('cShop').checked
+        }
+      })
+    }).then(function(r){ return r.json(); }).then(function(j){
+      if (!j.ok) { log('启动失败：' + j.error, 'err'); $('go').disabled = false; return; }
+      pollStatus();
+    });
     return;
   }
-  $('go').disabled = true;
-  log('开始连接服务器…');
 
-  QZEngine.fetchServer().then(function(srv){
-    log('服务器 ' + srv);
-    eng = new QZEngine.Engine({
-      server: srv,
-      onLog: function(m){ log(m); },
-      onProgress: function(i, total, tag){
-        var p = Math.round(i / total * 100);
-        $('bar').style.width = p + '%';
-        if (i % 10 === 0 || i === total) {
-          log('进度 ' + i + '/' + total + '  ' + tag);
-        }
-      },
-      onDone: function(st){
-        log('完成：枪械 ' + st.guns.length + ' 角色 ' + st.roles.length +
-            ' 成功 ' + st.ok + ' 失败 ' + st.fail,
-            st.fail === 0 ? 'ok' : 'warn');
+  // 静态模式：浏览器直连游戏服务器
+  runLocalBrowser();
+}
+
+function pollStatus() {
+  var lastLen = 0;
+  pollTimer = setInterval(function(){
+    fetch('/api/status').then(function(r){ return r.json(); }).then(function(s){
+      if (s.log.length > lastLen) {
+        for (var i = lastLen; i < s.log.length; i++) log(s.log[i]);
+        lastLen = s.log.length;
+      }
+      $('sGun').textContent = s.guns;
+      $('sRole').textContent = s.roles;
+      $('sOk').textContent = s.ok;
+      $('sFail').textContent = s.fail;
+      if (s.total) $('bar').style.width = Math.round(s.sent / s.total * 100) + '%';
+      if (s.phase === 'done' || s.phase === 'error') {
+        clearInterval(pollTimer);
+        $('bar').style.width = '100%';
         $('go').disabled = false;
       }
     });
+  }, 800);
+}
 
-    return eng.connect(cred).then(function(){
+function runLocalBrowser() {
+  log('静态模式：浏览器直连 wss://csdj23.haowan823.cn:7385/', 'warn');
+  var WS = new WebSocket('wss://csdj23.haowan823.cn:7385/');
+  WS.binaryType = 'arraybuffer';
+  var st = {guns:[], roles:[], ok:0, fail:0};
+  var q = [], sent = 0;
+
+  WS.onopen = function(){
+    WS.send(QZProto.frame(10000, QZProto.loginBody(cred)).buffer);
+  };
+  WS.onmessage = function(ev){
+    var u8 = new Uint8Array(ev.data), mid = (u8[0]<<8)|u8[1], body = u8.subarray(2);
+    if (mid === 10001) {
+      var f = QZProto.PF(body), code = 0;
+      for (var i=0;i<f.length;i++) if (f[i].n===1) code = Number(f[i].v);
+      if (code !== 1) { log('登录游戏失败 code=' + code, 'err'); return; }
       log('登录成功', 'ok');
-      return loadCatalog();
-    }).then(function(cat){
-      CATALOG = cat;
-      return eng.pull();
-    }).then(function(){
-      var st = eng.state;
-      log('当前存档：枪械 ' + st.guns.length + '/89，角色 ' + st.roles.length + '/7');
-      $('sGun').textContent = st.guns.length;
-      $('sRole').textContent = st.roles.length;
+      [22001,22003,22005,22007,22050].forEach(function(m,k){
+        setTimeout(function(){ WS.send(QZProto.frame(m).buffer); }, k*700);
+      });
+      setTimeout(build, 4200);
+      return;
+    }
+    if (mid === 22006) {
+      st.guns = [];
+      QZProto.PF(body).forEach(function(f){
+        if (f.n!==1||f.w!==2) return;
+        QZProto.PF(f.v).forEach(function(g){ if (g.n===1) st.guns.push(Number(g.v)); });
+      });
       renderGuns(st.guns);
-
-      var q = eng.plan(CATALOG, {
-        guns: $('cGuns').checked,
-        roles: $('cRoles').checked,
-        slots: $('cSlots').checked,
-        shopAd: $('cShop').checked,
-        shopDiamond: $('cZs').checked
+      $('sGun').textContent = st.guns.length;
+    }
+    if (mid === 22004) {
+      st.roles = [];
+      QZProto.PF(body).forEach(function(f){
+        if (f.n!==1) return;
+        QZProto.PF(f.v).forEach(function(g){ if (g.n===1) st.roles.push(Number(g.v)); });
       });
-      log('待处理 ' + q.length + ' 条（间隔 500ms，约 ' +
-          Math.ceil(q.length * 0.5 / 60) + ' 分钟）');
-      if (!q.length) { log('没有需要刷的内容', 'warn'); $('go').disabled = false; return; }
+      $('sRole').textContent = st.roles.length;
+    }
+    if (mid===22065||mid===22067||mid===22016||mid===22053||mid===22055) {
+      var c=0, ff=QZProto.PF(body);
+      for (var z=0;z<ff.length;z++) if (ff[z].n===1) c = Number(ff[z].v);
+      if (c===1) st.ok++; else st.fail++;
+      $('sOk').textContent = st.ok;
+      $('sFail').textContent = st.fail;
+    }
+  };
 
-      return eng.run(q).then(function(st){
-        $('sGun').textContent = st.guns.length;
-        $('sRole').textContent = st.roles.length;
-        $('sOk').textContent = st.ok;
-        $('sFail').textContent = st.fail;
-        $('bar').style.width = '100%';
-        renderGuns(st.guns);
-      });
-    });
+  function build() {
+    q = [];
+    if ($('cGuns').checked) {
+      for (var i=0;i<CATALOG.guns.length;i++) {
+        var g = CATALOG.guns[i];
+        if (st.guns.indexOf(g) < 0) q.push([22064, QZProto.FI(1,1).concat(QZProto.FI(2,g))]);
+      }
+    }
+    if ($('cRoles').checked) {
+      for (var j=0;j<CATALOG.roles.length;j++) {
+        var r = CATALOG.roles[j];
+        if (st.roles.indexOf(r) < 0) q.push([22066, QZProto.FI(1,1).concat(QZProto.FI(2,r))]);
+      }
+    }
+    if ($('cSlots').checked) {
+      for (var k=0;k<6;k++) q.push([22015, QZProto.FI(1,k).concat(QZProto.FI(2,1))]);
+    }
+    log('待写 ' + q.length + ' 条');
+    step();
+  }
 
-  }).catch(function(e){
-    log('失败：' + e.message, 'err');
-    log('常见原因：签名过期（重新进游戏页面拿新链接）、网络断开、频率限制', 'warn');
-    $('go').disabled = false;
-  });
+  function step() {
+    if (sent >= q.length) {
+      log('完成 枪械 ' + st.guns.length + '/89 角色 ' + st.roles.length + '/7 成功 ' + st.ok + ' 失败 ' + st.fail, 'ok');
+      $('go').disabled = false;
+      return;
+    }
+    var t = q[sent++];
+    WS.send(QZProto.frame(t[0], t[1]).buffer);
+    $('bar').style.width = Math.round(sent / q.length * 100) + '%';
+    if (sent % 20 === 0) log('进度 ' + sent + '/' + q.length);
+    setTimeout(step, (sent % 40 === 0) ? 1500 : 500);
+  }
+}
+
+function boot() {
+  detect();
+  loadCatalog().then(function(cat){
+    CATALOG = cat;
+    renderGuns([]);
+    log('已加载清单：' + cat.guns.length + ' 把枪 / ' + cat.roles.length + ' 个角色');
+  }).catch(function(){ log('清单加载失败', 'err'); });
 }
 
 boot();
