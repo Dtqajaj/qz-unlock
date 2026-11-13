@@ -57,13 +57,14 @@ code{background:#21262d;padding:1px 5px;border-radius:3px;font:11px ui-monospace
   <div class="sub">枪械 89 · 角色 7 · 备战栏位 6 · 广告商店</div>
 
   <div class="card">
-    <h2>第 1 步 · 打开登录窗口登录 4399</h2>
+    <h2>第 1 步 · 打开游戏并登录</h2>
     <div class="hint">
-      点下面按钮会打开 4399 官方登录页（新窗口）。在那边正常登录即可。<br>
-      登录成功后那边会自动跳到游戏页，<b>把这个窗口的地址复制回来</b>。
+      点下面按钮打开游戏页。没登录会提示登录，登录完游戏页地址栏就带上了
+      <code>userId</code> 和 <code>sign</code>。<br>
+      把那条完整地址复制回来即可。
     </div>
     <div class="row">
-      <button class="btn big" onclick="openLogin()">打开 4399 登录窗口</button>
+      <button class="btn big" onclick="openLogin()">打开游戏页</button>
     </div>
   </div>
 
@@ -130,13 +131,11 @@ function log(msg, cls) {
 }
 
 function openLogin() {
-  var u = 'https://ptlogin.4399.com/oauth2/authorize.do'
-    + '?client_id=a9a16636dbaeb917e2ffb16f0d52006e'
-    + '&redirect_uri=' + encodeURIComponent('https://h.api.4399.com/intermodal/user/login?gameId=100068063&gameUrl=' + encodeURIComponent('https://h5game.haowan823.cn/newqz/index_hao.html'))
-    + '&response_type=TOKEN&show_ext_login=true&auth_action=ORILOGIN';
-  var w = window.open(u, 'qzlogin', 'width=520,height=700,scrollbars=yes');
+  // 直接进游戏，4399 会自动弹登录 / 跳授权，登录完就停在带 sign 的游戏页
+  var u = 'https://h.api.4399.com/g.php?gameId=100068063';
+  var w = window.open(u, 'qzgame', 'width=920,height=760,scrollbars=yes');
   if (!w) { log('弹窗被拦截，请允许本站弹窗后重试', 'err'); return; }
-  log('已打开登录窗口，在那边登录后复制地址栏回来', 'warn');
+  log('已打开游戏页，登录后地址栏会出现 userId 与 sign', 'warn');
 }
 
 function autoGrab() {
