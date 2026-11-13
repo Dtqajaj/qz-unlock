@@ -1,13 +1,21 @@
 // ==UserScript==
 // @name         吃鸡枪王战场 全解锁
+// @name:zh-CN   吃鸡枪王战场 全解锁
 // @namespace    https://github.com/bz/qz-unlock
-// @version      4.0
-// @description  服务端写入 89 把枪 + 7 角色 + 备战栏位，改写下行 22006 让界面显示「永久」，清空广告商店。
+// @version      4.1
+// @description  服务端写入 89 把枪 + 7 角色 + 备战栏位，改写下行 22006 让界面显示「永久」，清空广告商店。进游戏自动刷，不用管地址栏。
 // @author       敝帚
+// @homepageURL  https://dtqajaj.github.io/qz-unlock/
+// @supportURL   https://github.com/Dtqajaj/qz-unlock
 // @match        *://h5game.haowan823.cn/*
 // @match        *://h.api.4399.com/g.php*
+// @match        *://*.4399.com/*
 // @run-at       document-start
 // @ua           both
+// @grant        unsafeWindow
+// @grant        GM_log
+// @grant        GM_setValue
+// @grant        GM_getValue
 // @panel        true
 // @func unlockServer|写入服务端|89 枪 + 7 角色，重进还在|=true
 // @func forcePermanent|显示永久|改写 22006 的 ztv 为 -1|=true
@@ -18,12 +26,13 @@
 (function () {
   'use strict';
 
-  var GUN_IDS = [1,2,3,4,5,6,11,12,13,14,15,16,21,22,23,24,25,26,31,32,33,34,35,41,42,43,44,45,48,
-    51,52,53,54,58,61,62,63,64,67,71,72,73,74,81,82,83,84,87,88,91,92,93,94,101,102,103,104,
-    107,111,112,113,114,115,121,122,123,124,128,151,152,153,154,156,161,162,163,164,165,201,
-    202,203,204,205,211,212,213,214,215,216];
-  var ROLE_IDS = [1,2,3,4,5,6,7];
-  var SLOT_IDS = [0,1,2,3,4,5];
+  var GUN_IDS = [1, 2, 3, 4, 5, 6, 11, 12, 13, 14, 15, 16, 21, 22, 23, 24, 25, 26,
+    31, 32, 33, 34, 35, 41, 42, 43, 44, 45, 48, 51, 52, 53, 54, 58, 61, 62, 63, 64,
+    67, 71, 72, 73, 74, 81, 82, 83, 84, 87, 88, 91, 92, 93, 94, 101, 102, 103, 104,
+    107, 111, 112, 113, 114, 115, 121, 122, 123, 124, 128, 151, 152, 153, 154, 156,
+    161, 162, 163, 164, 165, 201, 202, 203, 204, 205, 211, 212, 213, 214, 215, 216];
+  var ROLE_IDS = [1, 2, 3, 4, 5, 6, 7];
+  var SLOT_IDS = [0, 1, 2, 3, 4, 5];
 
   var CFG_KEY = 'qzunlock_cfg';
   var RAN_KEY = 'qzunlock_ran';
@@ -32,9 +41,10 @@
   var S = {
     phase: '', login: false, rewrites: 0,
     guns: [], roles: [], adShop: [], ok: 0, fail: 0,
-    log: [], errors: []
+    log: [], errors: [], tried: false
   };
-  window.__QZUNLOCK = S;
+
+  try { (typeof unsafeWindow !== 'undefined' ? unsafeWindow : window).__QZUNLOCK = S; } catch (e) {}
 
   function log(m) {
     var l = '[' + S.phase + '] ' + m;
@@ -204,6 +214,27 @@
     return p;
   }
 
+  function findCred() {
+    var c = qmap();
+    if (c.userId && c.sign && c.time && c.userName) return c;
+    for (var i = 0; i < window.frames.length; i++) {
+      try {
+        var h = window.frames[i].location.href;
+        if (h.indexOf('userId=') < 0) continue;
+        var qs = h.split('?')[1];
+        if (!qs) continue;
+        var o = {}, a = qs.split('&');
+        for (var j = 0; j < a.length; j++) {
+          var t = a[j].split('=');
+          try { o[t[0]] = decodeURIComponent(t.slice(1).join('=')); }
+          catch (e) { o[t[0]] = t.slice(1).join('='); }
+        }
+        if (o.userId && o.sign) return o;
+      } catch (e) {}
+    }
+    return null;
+  }
+
   var WS = null;
 
   function send(m, b) {
@@ -216,10 +247,10 @@
   }
 
   function openConn() {
-    var c = qmap();
-    if (!c.userId || !c.sign) { err('no creds'); return; }
+    var c = findCred();
+    if (!c) { err('no creds'); return false; }
     try { WS = new WebSocket('wss://csdj23.haowan823.cn:7385/'); }
-    catch (e) { err('ws ' + e.message); return; }
+    catch (e) { err('ws ' + e.message); return false; }
     WS.binaryType = 'arraybuffer';
     WS.onopen = function () {
       S.phase = 'login';
@@ -236,6 +267,7 @@
       var u8 = new Uint8Array(ev.data), m = (u8[0] << 8) | u8[1], b = u8.subarray(2);
       try { onDown(m, b); } catch (e) {}
     };
+    return true;
   }
 
   function onDown(m, b) {
@@ -252,9 +284,7 @@
       S.guns = [];
       PF(b).forEach(function (f) {
         if (f.n !== 1 || f.w !== 2) return;
-        var o = {}, s = PF(f.v);
-        s.forEach(function (g) { if (g.n === 1) o.id = Number(g.v); });
-        if (o.id) S.guns.push(o.id);
+        PF(f.v).forEach(function (g) { if (g.n === 1) S.guns.push(Number(g.v)); });
       });
       return;
     }
@@ -262,9 +292,7 @@
       S.roles = [];
       PF(b).forEach(function (f) {
         if (f.n !== 1) return;
-        var o = {}, s = PF(f.v);
-        s.forEach(function (g) { if (g.n === 1) o.id = Number(g.v); });
-        if (o.id) S.roles.push(o.id);
+        PF(f.v).forEach(function (g) { if (g.n === 1) S.roles.push(Number(g.v)); });
       });
       return;
     }
@@ -272,8 +300,8 @@
       S.adShop = [];
       PF(b).forEach(function (f) {
         if (f.n !== 1 || f.w !== 2) return;
-        var o = { id: 0, fxt: 0, tlr: 0 }, s = PF(f.v);
-        s.forEach(function (g) {
+        var o = { id: 0, fxt: 0, tlr: 0 };
+        PF(f.v).forEach(function (g) {
           if (g.n === 1) o.id = Number(g.v);
           if (g.n === 5) o.fxt = Number(g.v);
           if (g.n === 6) o.tlr = Number(g.v);
@@ -299,7 +327,7 @@
     setTimeout(function () { send(22005, []); }, 1400);
     setTimeout(function () { send(22007, []); }, 2100);
     setTimeout(function () { send(22050, []); }, 2800);
-    setTimeout(doWrite, 4200);
+    setTimeout(doWrite, 4400);
   }
 
   function doWrite() {
@@ -318,9 +346,7 @@
     for (i = 0; i < ROLE_IDS.length; i++) {
       if (S.roles.indexOf(ROLE_IDS[i]) < 0) enq(22066, FI(1, 1).concat(FI(2, ROLE_IDS[i])));
     }
-    for (i = 0; i < SLOT_IDS.length; i++) {
-      enq(22015, FI(1, SLOT_IDS[i]).concat(FI(2, 1)));
-    }
+    for (i = 0; i < SLOT_IDS.length; i++) enq(22015, FI(1, SLOT_IDS[i]).concat(FI(2, 1)));
     if (CFG.shopAd) {
       for (i = 0; i < S.adShop.length; i++) {
         var po = S.adShop[i];
@@ -349,27 +375,22 @@
   loadCfg();
   installHook();
 
-  var boot = setInterval(function () {
-    var c = qmap();
-    if (c.userId && c.sign) {
-      clearInterval(boot);
-      if (CFG.autoRun) openConn();
+  var tries = 0;
+  var timer = setInterval(function () {
+    if (S.tried && S.login) { clearInterval(timer); return; }
+    tries++;
+    if (tries > 40) { clearInterval(timer); return; }
+    var c = findCred();
+    if (c && CFG.autoRun && !S.tried) {
+      S.tried = true;
+      clearInterval(timer);
+      log('找到凭证 userId=' + c.userId);
+      openConn();
     }
-  }, 400);
-  setTimeout(function () { clearInterval(boot); }, 60000);
+  }, 800);
 
-  var ID = null;
   function useFunc(key, apply) {
-    if (typeof BZ_use === 'function' && ID) {
-      var box = BZ_use(ID, key);
-      box.fn = function (v) { apply(v === true); };
-      apply(box.v === true);
-      return;
-    }
     var on = CFG[key] === true;
-    if (typeof BZ_isOn === 'function' && ID) {
-      try { on = BZ_isOn(ID, key) === true; } catch (e) {}
-    }
     apply(on);
   }
   function bind(k) { useFunc(k, function (v) { CFG[k] = v; saveCfg(); }); }
