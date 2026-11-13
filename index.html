@@ -3,18 +3,25 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<meta http-equiv="refresh" content="0;url=web/">
 <title>吃鸡枪王战场 · 全解锁</title>
+<script>
+(function () {
+  var m = /Mobile|Android|iPhone|iPad|iPod|Windows Phone/i.test(navigator.userAgent);
+  var target = m ? 'web/m.html' : 'web/index.html';
+  if (location.search) target += location.search;
+  location.replace(target);
+})();
+</script>
 <style>
 body{background:#0d1117;color:#c9d1d9;font:14px/1.6 -apple-system,sans-serif;
-display:flex;align-items:center;justify-content:center;height:100vh;margin:0;text-align:center}
+  display:flex;align-items:center;justify-content:center;height:100vh;margin:0;text-align:center}
 a{color:#58a6ff}
 </style>
 </head>
 <body>
 <div>
   <p>正在跳转…</p>
-  <p><a href="web/">点此进入</a></p>
+  <p><a href="web/m.html">手机版</a> · <a href="web/index.html">电脑版</a></p>
 </div>
 </body>
 </html>
