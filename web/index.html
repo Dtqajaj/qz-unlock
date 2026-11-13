@@ -153,6 +153,10 @@ function loadCatalog() {
 
 function start() {
   if (!cred) { log('请先解析凭证', 'err'); return; }
+  if (typeof Promise === 'undefined' || typeof fetch === 'undefined') {
+    log('浏览器太旧，不支持 Promise/fetch，请用 Chrome/Edge 最新版', 'err');
+    return;
+  }
   $('go').disabled = true;
   log('开始连接服务器…');
 
