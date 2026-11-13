@@ -51,9 +51,39 @@ code{background:#21262d;padding:2px 6px;border-radius:4px;font-size:11px;
 <h1>吃鸡枪王战场 · 全解锁</h1>
 <div class="sub">枪械 89 · 角色 7 · 备战栏位 6 · 广告商店</div>
 
+<div class="card" style="border-color:#238636">
+  <h2 style="color:#3fb950">★ 推荐：一键装脚本，全自动</h2>
+  <div class="hint" style="margin-top:0;margin-bottom:12px">
+    装上之后进游戏自动刷，<b>完全不用管地址栏和 sign</b>。<br>
+    只需要装一次 Tampermonkey（油猴），然后点下面的按钮。
+  </div>
+
+  <div style="background:#0d1117;border-radius:10px;padding:12px;margin-bottom:12px">
+    <div style="font-size:12px;color:#8b949e;margin-bottom:8px">第 1 步 · 装油猴（如果还没装）</div>
+    <a class="btn gray" style="margin-bottom:6px;font-size:14px;padding:12px"
+       href="https://www.tampermonkey.net/" target="_blank">下载 Tampermonkey</a>
+    <div style="font-size:11px;color:#484f58">
+      Android 用 Kiwi Browser / Yandex 装插件；iOS 用 Safari 的 Userscripts
+    </div>
+  </div>
+
+  <div style="background:#0d1117;border-radius:10px;padding:12px">
+    <div style="font-size:12px;color:#8b949e;margin-bottom:8px">第 2 步 · 装脚本</div>
+    <a class="btn" style="margin-bottom:0" href="../dist/qz-unlock.user.js" id="installBtn">
+      一键安装脚本
+    </a>
+    <div id="instTip" style="font-size:11px;color:#484f58;margin-top:8px"></div>
+  </div>
+
+  <div class="hint" style="margin-top:12px">
+    装好后直接打开游戏（<code>g.php?gameId=100068063</code>）登录，
+    脚本会自动完成全部刷取。刷完重进游戏仍然是全解锁。
+  </div>
+</div>
+
 <div class="card">
-  <h2><span class="num">1</span>打开游戏登录</h2>
-  <a class="btn" href="https://h.api.4399.com/g.php?gameId=100068063" target="_blank" id="gameBtn">打开游戏页</a>
+  <h2><span class="num">1</span>或者：手动打开游戏登录</h2>
+  <a class="btn gray" href="https://h.api.4399.com/g.php?gameId=100068063" target="_blank" id="gameBtn">打开游戏页</a>
   <div class="hint">
     点上面按钮，在游戏页里登录 4399。<br>
     登录成功后，游戏会自动跳到<b>可以玩</b>的界面。
@@ -244,6 +274,17 @@ function boot(){
     CATALOG=c;
     log('清单已加载：'+c.guns.length+' 枪 / '+c.roles.length+' 角色');
   }).catch(function(){log('清单加载失败','err')});
+
+  // 检测是否已装油猴
+  setTimeout(function(){
+    var tip = $('instTip');
+    if (!tip) return;
+    if (typeof GM_info !== 'undefined' || window.hasOwnProperty('GM_info')) {
+      tip.innerHTML = '<span class="ok">✓ 检测到油猴，直接点上面按钮安装</span>';
+    } else {
+      tip.innerHTML = '没检测到油猴。先装 Tampermonkey，再回来点安装。';
+    }
+  }, 500);
 
   // ?u= 直接带入
   var m=location.search.match(/[?&]u=([^&]+)/);
