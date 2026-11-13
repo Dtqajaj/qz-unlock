@@ -59,12 +59,16 @@ code{background:#21262d;padding:1px 5px;border-radius:3px;font:11px ui-monospace
   <div class="card">
     <h2>第 1 步 · 打开游戏并登录</h2>
     <div class="hint">
-      点下面按钮打开游戏页。没登录会提示登录，登录完游戏页地址栏就带上了
-      <code>userId</code> 和 <code>sign</code>。<br>
-      把那条完整地址复制回来即可。
+      浏览器地址栏多半只显示 <code>g.php?gameId=100068063</code>，
+      带 <code>sign</code> 的真实地址藏在它的 iframe 里。<br>
+      <b>最快的方法</b>：点「打开游戏页」，然后在那边按 F12 跑一次提取代码，
+      见 <a href="grab.html" target="_blank">提取说明</a>。<br>
+      <b>更省事</b>：装油猴脚本，进游戏自动刷，完全不用碰地址栏。
     </div>
     <div class="row">
       <button class="btn big" onclick="openLogin()">打开游戏页</button>
+      <a class="btn gray" href="grab.html" target="_blank" style="text-decoration:none;
+        display:inline-block;padding:10px 20px;border-radius:6px">怎么提取地址</a>
     </div>
   </div>
 
@@ -331,7 +335,19 @@ function boot() {
     log('已加载清单：' + cat.guns.length + ' 把枪 / ' + cat.roles.length + ' 个角色');
   }).catch(function(){ log('清单加载失败', 'err'); });
 
-  // 自动检测剪贴板里有没有现成链接
+  // URL 带 ?u= 直接解析并开刷
+  var m = location.search.match(/[?&]u=([^&]+)/);
+  if (m) {
+    try {
+      $('url').value = decodeURIComponent(m[1]);
+      log('从链接参数拿到游戏地址', 'ok');
+      parseUrl();
+      setTimeout(function(){ if (cred) start(); }, 600);
+    } catch (e) { log('参数解析失败：' + e.message, 'err'); }
+    return;
+  }
+
+  // 否则看剪贴板
   setTimeout(function(){
     if (!navigator.clipboard) return;
     navigator.clipboard.readText().then(function(t){
