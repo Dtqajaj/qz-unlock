@@ -4,14 +4,32 @@
 
 **写的是服务端存档，不是本地内存。关页面、换设备、明天再登都还在。**
 
-## 在线使用
+## 用法一：账号密码直接刷（推荐）
+
+```bash
+pip3 install -r tools/requirements.txt --break-system-packages
+python3 tools/server.py
+```
+
+打开 **http://127.0.0.1:8899/web/**，填 4399 账号密码，点登录 → 开始刷取。
+
+不用复制链接，程序自己登录拿 sign。4399 登录接口无验证码，链路已完整逆向。
+
+命令行也行：
+
+```bash
+python3 tools/flush.py <4399账号> <密码>
+```
+
+## 用法二：在线网页（需手动贴链接）
 
 **<https://dtqajaj.github.io/qz-unlock/>**
 
+纯静态托管，浏览器不能跨域登录 4399，所以要手动贴链接：
+
 1. 点「打开游戏页面」，登录 4399
 2. 从地址栏复制整条 `index_hao.html?userId=...&sign=...` 链接
-3. 粘贴 → 解析凭证 → 开始刷取
-4. 等进度条走完（约 1 分钟）
+3. 粘贴 → 解析 → 开始刷取
 
 ---
 
@@ -84,6 +102,10 @@ qz-unlock/
 ├── src/
 │   ├── proto.js        Protobuf 编解码 + 帧构造 + 22006 改写
 │   └── engine.js       连接 / 登录 / 拉包 / 规划 / 执行
+├── tools/
+│   ├── login.py        4399 账号密码登录（AES + OAuth + grant2）
+│   ├── flush.py        刷档引擎（Python WebSocket 版）
+│   └── server.py       本地服务（网页 ↔ 4399 代理）
 ├── data/
 │   └── catalog.json    89 枪 + 7 角色 + 156 道具清单（从线上配置提取）
 ├── web/
@@ -92,7 +114,8 @@ qz-unlock/
 │   ├── console.js      控制台一键版
 │   └── qz-unlock.user.js  油猴脚本
 └── docs/
-    └── protocol.md     协议速查
+    ├── protocol.md     游戏协议速查
+    └── login.md        4399 登录逆向（AES 密钥 / OAuth 流程）
 ```
 
 ---
